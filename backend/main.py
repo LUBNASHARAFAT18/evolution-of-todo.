@@ -12,9 +12,9 @@ from datetime import timedelta
 app = FastAPI(title="Evolution of Todo (Phase II)")
 
 # CORS Middleware (Allow Frontend)
+# CORS Middleware (Allow Frontend)
 origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    "*", # Allow all origins for Vercel (Preview & Prod)
 ]
 
 app.add_middleware(
