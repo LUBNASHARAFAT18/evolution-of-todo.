@@ -1,29 +1,29 @@
-# Phase I Implementation Tasks
+# Phase II Implementation Tasks
 
-Derived from `speckit/plan.md` and `speckit/spec.md`.
+Derived from `speckit/plan.md`.
 
-## Setup & Data Model
-- [ ] **TASK-01**: Initialize `main.py` with basic structure and "Evolution of Todo" banner.
-- [ ] **TASK-02**: Implement in-memory data storage (global `tasks` list and `current_id`).
-- [ ] **TASK-03**: Create helper function `find_task(task_id)` to retrieve tasks safely.
+## Backend (FastAPI + Neon + Auth)
+- [x] **TASK-B01**: Initialize `backend` directory and virtual environment structure.
+- [x] **TASK-B02**: Install dependencies (`fastapi`, `uvicorn`, `sqlmodel`, `passlib`, `python-jose`, `python-multipart`).
+- [x] **TASK-B03**: Implement `backend/database.py` with SQLModel and Neon DB connection.
+- [x] **TASK-B04**: Implement `backend/models.py` defining `User` and `Todo` tables.
+- [x] **TASK-B05**: Implement `backend/auth.py` (Password hashing, JWT token generation, `get_current_user` dependency).
+- [x] **TASK-B06**: Implement `backend/routers/auth.py` (Signup `POST /auth/signup`, Login `POST /auth/token`).
+- [x] **TASK-B07**: Implement `backend/routers/todos.py` (CRUD: Create, Read, Update, Delete, Toggle).
+- [x] **TASK-B08**: Implement `backend/main.py` entry point (CORS setup, include routers).
 
-## Core Logic (CRUD)
-- [ ] **TASK-04**: Implement `add_task_logic(description)` function.
-- [ ] **TASK-05**: Implement `delete_task_logic(task_id)` function.
-- [ ] **TASK-06**: Implement `update_task_logic(task_id, new_desc)` function.
-- [ ] **TASK-07**: Implement `toggle_status_logic(task_id)` function.
+## Frontend (Next.js)
+- [x] **TASK-F01**: Initialize `frontend` directory using `create-next-app`.
+- [x] **TASK-F02**: Setup API client helper (`lib/api.ts`) with Authorization header injection.
+- [x] **TASK-F03**: Create Auth Context (`lib/auth.context.tsx`) to manage user session.
+- [x] **TASK-F04**: Implement Sign Up Page (`app/signup/page.tsx`).
+- [x] **TASK-F05**: Implement Sign In Page (`app/login/page.tsx`).
+- [x] **TASK-F06**: Implement Dashboard Page (`app/dashboard/page.tsx`) with Todo List.
+- [x] **TASK-F07**: Create `AddTodoForm` component.
+- [x] **TASK-F08**: Create `TodoItem` component with Edit/Delete/Toggle actions.
+- [x] **TASK-F09**: Implement route protection (Redirect to /login if unauthenticated).
 
-## CLI & Interaction
-- [ ] **TASK-08**: Implement `print_menu()` to display options.
-- [ ] **TASK-09**: Implement `view_tasks_ui()` to format and print the task list.
-- [ ] **TASK-10**: Implement `add_task_ui()` to handle user input for adding.
-- [ ] **TASK-11**: Implement `update_task_ui()` to handle user input for updating.
-- [ ] **TASK-12**: Implement `delete_task_ui()` to handle user input for deleting.
-- [ ] **TASK-13**: Implement `toggle_status_ui()` to handle user input for toggling status.
-- [ ] **TASK-14**: Implement Main Application Loop (`while True`) linking menu to UI functions.
-- [ ] **TASK-15**: Implement Exit condition and graceful shutdown.
-
-## Validation & Polish
-- [ ] **TASK-16**: Add error handling for invalid integer inputs (ID selection).
-- [ ] **TASK-17**: Add error handling for empty descriptions.
-- [ ] **TASK-18**: Verify all acceptance criteria are met manually.
+## Integration & Verification
+- [x] **TASK-I01**: Verify Backend starts and connects to DB (Mock or Real).
+- [x] **TASK-I02**: Verify Frontend connects to Backend (CORS check).
+- [x] **TASK-I03**: Perform complete E2E flow: Signup -> Login -> Add Todo -> View -> Logout.

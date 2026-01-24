@@ -18,14 +18,18 @@ This constitution acts as the supreme governing document for all agents working 
 - **Evolution**: Architecture may evolve only through updated specs and plans in subsequent phases.
 
 ## 4. Technology Constraints
-- **Phase I**:
+- **Phase I** (Completed):
     - **Language**: Python 3.13+
     - **Interface**: Console / CLI
-    - **Storage**: In-memory ONLY (No persistence, no files, no databases)
-    - **Frameworks**: None (Standard Library only)
-- **Future Phases (Preview)**:
-    - Frontend: Next.js
-    - Backend: FastAPI, SQLModel, Neon DB
+    - **Storage**: In-memory ONLY
+- **Phase II** (Active):
+    - **Backend**: Python REST API (FastAPI)
+    - **Database**: Neon Serverless PostgreSQL
+    - **ORM/Data layer**: SQLModel or equivalent
+    - **Frontend**: Next.js (React, TypeScript)
+    - **Authentication**: Better Auth (signup/signin)
+    - **Architecture**: Full-stack web application
+- **Future Phases**:
     - Tools: OpenAI Agents SDK, MCP, Docker, Kubernetes, Kafka, Dapr
 
 ## 5. Quality Principles

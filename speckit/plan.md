@@ -1,63 +1,60 @@
-# Phase I Technical Plan - Evolution of Todo
+# Phase II Technical Plan - Evolution of Todo
 
-This plan describes HOW Phase I will be implemented in Python, adhering strictly to the Specification and Global Constitution.
+Derived from `speckit/spec.md` and `speckit/constitution.md`.
 
-## 1. Application Structure
-- **File**: `main.py` (Single file as per "High-level application structure" suggestion).
-- **Entry Point**: `if __name__ == "__main__": main()` block.
-- **Architecture**:
-    - **Data Layer**: In-memory list.
-    - **Logic Layer**: Functions for CRUD operations.
-    - **Presentation Layer**: CLI loop and input/print functions.
-
-## 2. Data Structures
-- **Tasks Storage**: A global list of dictionaries.
-    ```python
-    # Example structure
-    tasks = [
-        {"id": 1, "description": "Buy milk", "status": "Incomplete"},
-        {"id": 2, "description": "Walk dog", "status": "Complete"}
-    ]
+## 1. Backend Plan (FastAPI)
+-   **Framework**: FastAPI (High performance, easy REST generation).
+-   **Structure**:
     ```
-- **ID Generation**: A global counter variable (e.g., `current_id = 0`) incremented on each add.
+    backend/
+      main.py           # Entry point
+      database.py       # Neon DB connection & SQLModel config
+      models.py         # User and Todo data models
+      auth.py           # Better Auth integration (or simplified JWT logic if library unavailable)
+      routers/
+        todos.py        # CRUD endpoints
+        auth.py         # Signin/Signup endpoints
+    ```
+-   **Dependencies**: `fastapi`, `uvicorn`, `sqlmodel`, `psycopg2-binary` (or `asyncpg`).
 
-## 3. Control Flow
-1.  Initialize empty `tasks` list and `current_id` counter.
-2.  Enter `while True:` loop.
-3.  Print Menu options.
-4.  Get user input (`input("> ")`).
-5.  Match input to function calls:
-    - "1" -> `add_task_ui()`
-    - "2" -> `view_tasks_ui()`
-    - "3" -> `update_task_ui()`
-    - "4" -> `delete_task_ui()`
-    - "5" -> `toggle_status_ui()`
-    - "6" -> `sys.exit()`
-6.  Handle invalid input with `else:` block printing error.
+## 2. Database Plan (Neon PostgreSQL)
+-   **Connection**: Connection string provided via `.env` (User to provide).
+-   **ORM**: SQLModel (Combines Pydantic & SQLAlchemy).
+-   **Tables**:
+    -   `User`: id, email, password_hash
+    -   `Todo`: id, user_id, title, status, created_at
+-   **Migration**: `sqlmodel.create_all()` on startup for simplicity in this phase.
 
-## 4. Separation of Responsibilities
-To maintain clean architecture even in a single file, we will separate Logic from UI.
+## 3. Frontend Plan (Next.js)
+-   **Framework**: Next.js (App Router).
+-   **Structure**:
+    ```
+    frontend/
+      app/
+        page.tsx        # Landing / Redirect
+        login/          # Login page
+        signup/         # Signup page
+        dashboard/      # Protected Todo list
+      components/
+        TodoItem.tsx
+        AddTodoForm.tsx
+      lib/
+        api.ts          # Axios/Fetch wrapper
+        auth.context.tsx # React Context for auth state
+    ```
+-   **Styling**: CSS Modules or Tailwind (if requested, else standard CSS).
 
-### Logic Functions (Pure-ish)
-- `add_task(description)`: Returns new task dict.
-- `get_all_tasks()`: Returns list of tasks.
-- `find_task(task_id)`: Returns task dict or None.
-- `delete_task_id(task_id)`: Returns boolean success.
-- `update_task_desc(task_id, new_desc)`: Returns boolean success/updated task.
-- `toggle_task_status(task_id)`: Returns boolean success/updated status.
+## 4. Integration Plan
+-   **CORS**: Configure FastAPI `CORSMiddleware` to allow `localhost:3000`.
+-   **Authentication**:
+    -   Frontend stores token (localStorage/cookie).
+    -   Sends token in `Authorization: Bearer <token>` header.
+    -   Backend dependency `get_current_user` validates token.
+-   **Development**:
+    -   Run Backend: `uvicorn backend.main:app --reload`
+    -   Run Frontend: `npm run dev`
 
-### UI Functions (Side-effects)
-- `add_task_ui()`: Prompts for desc, calls logic, prints result.
-- `view_tasks_ui()`: Calls logic, formats and prints table.
-- `update_task_ui()`: Prompts for ID and desc, calls logic.
-- ... etc.
-
-## 5. Error Handling Strategy
-- **Input Validation**: `try/except ValueError` when parsing IDs.
-- **Logic Validation**: Check if description is empty. Check if ID exists.
-- **User Feedback**: Print clear messages (e.g., "Error: Task ID not found") without crashing.
-
-## 6. Constraints Check
-- No Database imports.
-- No File I/O operations.
-- Pure Python 3.13+ syntax.
+## 5. Constraints
+-   No background workers.
+-   No Websockets.
+-   Strict Phase II rules.
