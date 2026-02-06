@@ -4,10 +4,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select
 from typing import List
 
-from .database import create_db_and_tables, get_session
-from .models import User, UserCreate, Todo, TodoCreate, TodoUpdate, Token
-from .auth import get_password_hash, verify_password, create_access_token, get_current_user, ACCESS_TOKEN_EXPIRE_MINUTES
+from backend.database import create_db_and_tables, get_session
+from backend.models import User, UserCreate, Todo, TodoCreate, TodoUpdate, Token
+from backend.auth import get_password_hash, verify_password, create_access_token, get_current_user, ACCESS_TOKEN_EXPIRE_MINUTES
 from datetime import timedelta
+import os
+from google import genai
+from google.genai import types
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Client will be initialized inside handler
 
 app = FastAPI(title="Evolution of Todo (Phase II)")
 
@@ -107,3 +115,99 @@ def delete_todo(todo_id: int, current_user: User = Depends(get_current_user), se
     session.delete(todo)
     session.commit()
     return {"ok": True}
+
+# --- Chat Agent (Phase III - Gemini Integration) ---
+
+def get_chat_tools(current_user: User, session: Session):
+    """Define tools for Gemini to interact with the database."""
+    
+    def add_todo_tool(title: str):
+        """Add a new task to the todo list."""
+        new_todo = Todo(title=title, user_id=current_user.id)
+        session.add(new_todo)
+        session.commit()
+        session.refresh(new_todo)
+        return f"Success: Task '{title}' added."
+
+    def list_todos_tool():
+        """List all tasks for the current user."""
+        todos = session.exec(select(Todo).where(Todo.user_id == current_user.id)).all()
+        if not todos:
+            return "No tasks found."
+        return "\n".join([f"- [{t.id}] {t.title} ({t.status})" for t in todos])
+
+    def complete_todo_tool(todo_id: int):
+        """Mark a task as complete using its ID."""
+        todo = session.get(Todo, todo_id)
+        if not todo or todo.user_id != current_user.id:
+            return f"Error: Task {todo_id} not found."
+        todo.status = "Complete"
+        session.add(todo)
+        session.commit()
+        return f"Success: Task '{todo.title}' marked as complete."
+
+    def delete_todo_tool(todo_id: int):
+        """Delete a task using its ID."""
+        todo = session.get(Todo, todo_id)
+        if not todo or todo.user_id != current_user.id:
+            return f"Error: Task {todo_id} not found."
+        title = todo.title
+        session.delete(todo)
+        session.commit()
+        return f"Success: Task '{title}' deleted."
+
+    return {
+        "add_task": add_todo_tool,
+        "list_tasks": list_todos_tool,
+        "complete_task": complete_todo_tool,
+        "delete_task": delete_todo_tool
+    }
+
+@app.post("/chat")
+def chat_with_agent(data: dict, current_user: User = Depends(get_current_user), session: Session = Depends(get_session)):
+    user_message = data.get("message", "")
+    if not user_message:
+        raise HTTPException(status_code=400, detail="Message is required")
+
+    # Initialize Client inside to ensure correct API key loading
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+    # Initialize tools
+    tools = get_chat_tools(current_user, session)
+    
+    # Wrap tools to detect if any was called (for frontend refresh)
+    refresh_called = [False]
+    def wrap_tool(name, func):
+        def wrapper(**kwargs):
+            refresh_called[0] = True
+            return func(**kwargs)
+        wrapper.__name__ = name
+        wrapper.__doc__ = func.__doc__
+        return wrapper
+
+    tool_functions = [wrap_tool(name, func) for name, func in tools.items()]
+
+    try:
+        response = client.models.generate_content(
+            model='models/gemini-1.5-flash',
+            contents=user_message,
+            config=types.GenerateContentConfig(
+                tools=tool_functions,
+                automatic_function_calling=types.AutomaticFunctionCallingConfig(
+                    disable=False
+                )
+            )
+        )
+
+        return {
+            "reply": response.text,
+            "refresh": refresh_called[0]
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Gemini Error: {e}")
+        return {
+            "reply": "I'm sorry, I'm having trouble connecting to my brain right now. Please try again later.",
+            "refresh": False
+        }

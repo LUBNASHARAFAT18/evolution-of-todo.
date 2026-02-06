@@ -54,7 +54,12 @@ Derived from `speckit/spec.md` and `speckit/constitution.md`.
     -   Run Backend: `uvicorn backend.main:app --reload`
     -   Run Frontend: `npm run dev`
 
-## 5. Constraints
--   No background workers.
--   No Websockets.
--   Strict Phase II rules.
+- Strict Phase II rules.
+
+## 6. Phase III: AI & MCP Plan
+- **MCP Server**: Python-based server using `mcp` SDK.
+- **Integration**: The server will connect to the existing FastAPI backend to perform operations on behalf of the user.
+- **Statelessness**: No session data stored in the agent or MCP server; all state resides in the Postgres/SQLite database.
+- **Tool Implementation**:
+    - Tools will map directly to FastAPI endpoints (`POST /todos/`, `GET /todos/`, etc.).
+    - A "System User" or JWT context will be required for the agent to act.

@@ -23,7 +23,14 @@ Derived from `speckit/plan.md`.
 - [x] **TASK-F08**: Create `TodoItem` component with Edit/Delete/Toggle actions.
 - [x] **TASK-F09**: Implement route protection (Redirect to /login if unauthenticated).
 
-## Integration & Verification
-- [x] **TASK-I01**: Verify Backend starts and connects to DB (Mock or Real).
-- [x] **TASK-I02**: Verify Frontend connects to Backend (CORS check).
-- [x] **TASK-I03**: Perform complete E2E flow: Signup -> Login -> Add Todo -> View -> Logout.
+- [x] Perform complete E2E flow: Signup -> Login -> Add Todo -> View -> Logout.
+
+## Phase III Implementation Tasks
+- [x] **TASK-A01**: Setup MCP Server project structure.
+- [x] **TASK-A02**: Implement `add_task` tool.
+- [x] **TASK-A03**: Implement `list_tasks` tool.
+- [x] **TASK-A04**: Implement `complete_task` tool.
+- [x] **TASK-A05**: Implement `delete_task` tool.
+- [x] **TASK-A06**: Implement `update_task` tool.
+- [x] **TASK-A07**: Define Antigravity Agent YAML/JSON spec.
+- [ ] **TASK-A08**: Verify E2E flow via Chatbot interface.

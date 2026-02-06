@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import { useAuth } from '@/lib/auth.context';
 import { useRouter } from 'next/navigation';
+import ChatInterface from '@/components/ChatInterface';
 
 interface Todo {
     id: number;
@@ -19,11 +20,10 @@ export default function DashboardPage() {
 
     useEffect(() => {
         if (!isAuthenticated) {
-            // Wait a bit or let middleware handle it, but here is fine for now
             // router.push('/login'); 
         }
         fetchTodos();
-    }, []);
+    }, [isAuthenticated]);
 
     const fetchTodos = async () => {
         try {
@@ -86,7 +86,7 @@ export default function DashboardPage() {
                     </button>
                 </form>
 
-                <div className="space-y-4">
+                <div className="space-y-4 pb-20">
                     {todos.map((todo) => (
                         <div key={todo.id} className="flex items-center justify-between p-4 bg-white rounded shadow">
                             <div className="flex items-center gap-3">
@@ -111,6 +111,8 @@ export default function DashboardPage() {
                     {todos.length === 0 && <p className="text-center text-gray-500">No tasks yet. Add one!</p>}
                 </div>
             </main>
+
+            <ChatInterface onAction={fetchTodos} />
         </div>
     );
 }

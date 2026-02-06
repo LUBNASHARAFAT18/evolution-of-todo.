@@ -59,7 +59,24 @@
 5.  User can update, delete, and toggle completion of a todo.
 6.  Frontend is responsive and provides feedback (loading states/errors).
 
-## 4. Non-Functional Constraints
--   No Al agents (yet).
--   No background jobs or real-time sockets.
--   No complex analytics.
+
+# Phase III Specification - AI Agent & MCP
+
+**Phase III Goal**: Add an AI Chatbot (todo-agent) that interacts with the system via MCP tools.
+
+## 1. Agent Identity
+- **Name**: todo-agent
+- **Type**: Conversational Task Manager
+- **Model**: Stateless
+
+## 2. MCP Tools
+- `add_task`: Create a new task.
+- `list_tasks`: List tasks (filters: all, pending, completed).
+- `complete_task`: Mark a task complete.
+- `delete_task`: Delete a task.
+- `update_task`: Update title or description.
+
+## 3. Behavioral Rules
+- Stateless (no internal memory).
+- Tool chaining: `list_tasks` -> find ID -> perform action.
+- Clear, friendly confirmations mentioning task titles.
