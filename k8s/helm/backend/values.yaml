@@ -1,0 +1,22 @@
+replicaCount: 1
+
+image:
+  repository: todo-backend
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 8000
+
+env:
+  geminiApiKey: "REPLACE_WITH_YOUR_KEY"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

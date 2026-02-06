@@ -1,0 +1,23 @@
+replicaCount: 1
+
+image:
+  repository: todo-frontend
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: NodePort
+  port: 3000
+  nodePort: 30080
+
+env:
+  # This needs to be reachable by the User's Browser
+  nextPublicApiUrl: "http://localhost:8001" 
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
