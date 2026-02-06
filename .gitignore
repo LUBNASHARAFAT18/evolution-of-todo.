@@ -3,3 +3,9 @@ __pycache__/
 .vscode/
 .specify/memory/
 node_modules
+*.db
+.env
+.next/
+next-env.d.ts
+test_*.py
+.DS_Store
