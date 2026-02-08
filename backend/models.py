@@ -11,6 +11,8 @@ class Todo(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id")
     title: str
+    description: Optional[str] = None
+    priority: str = Field(default="Medium") # Low, Medium, High
     status: str = Field(default="Incomplete")
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -20,9 +22,13 @@ class UserCreate(SQLModel):
 
 class TodoCreate(SQLModel):
     title: str
+    description: Optional[str] = None
+    priority: Optional[str] = "Medium"
 
 class TodoUpdate(SQLModel):
     title: Optional[str] = None
+    description: Optional[str] = None
+    priority: Optional[str] = None
     status: Optional[str] = None
 
 class Token(SQLModel):

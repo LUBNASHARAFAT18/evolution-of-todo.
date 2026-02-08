@@ -1,0 +1,11 @@
+# Git & Docker Ignore
+node_modules
+.next
+__pycache__
+.git
+.vscode
+.env
+*.db
+venv
+.venv
+speckit

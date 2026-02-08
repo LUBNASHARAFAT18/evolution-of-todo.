@@ -37,6 +37,10 @@ app.add_middleware(
 def on_startup():
     create_db_and_tables()
 
+@app.get("/")
+def read_root():
+    return {"status": "Evolution of Todo Backend is Running", "phase": 4, "infrastructure": "Kubernetes"}
+
 # --- Auth Routes ---
 
 @app.post("/auth/signup", response_model=Token)
@@ -79,6 +83,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = D
 def create_todo(todo_data: TodoCreate, current_user: User = Depends(get_current_user), session: Session = Depends(get_session)):
     new_todo = Todo(
         title=todo_data.title,
+        description=todo_data.description,
+        priority=todo_data.priority,
         user_id=current_user.id
     )
     session.add(new_todo)
@@ -98,6 +104,10 @@ def update_todo(todo_id: int, todo_update: TodoUpdate, current_user: User = Depe
     
     if todo_update.title is not None:
         todo.title = todo_update.title
+    if todo_update.description is not None:
+        todo.description = todo_update.description
+    if todo_update.priority is not None:
+        todo.priority = todo_update.priority
     if todo_update.status is not None:
         todo.status = todo_update.status
         
@@ -121,13 +131,13 @@ def delete_todo(todo_id: int, current_user: User = Depends(get_current_user), se
 def get_chat_tools(current_user: User, session: Session):
     """Define tools for Gemini to interact with the database."""
     
-    def add_todo_tool(title: str):
-        """Add a new task to the todo list."""
-        new_todo = Todo(title=title, user_id=current_user.id)
+    def add_todo_tool(title: str, description: str = None, priority: str = "Medium"):
+        """Add a new task to the todo list with optional description and priority (Low, Medium, High)."""
+        new_todo = Todo(title=title, description=description, priority=priority, user_id=current_user.id)
         session.add(new_todo)
         session.commit()
         session.refresh(new_todo)
-        return f"Success: Task '{title}' added."
+        return f"Success: Task '{title}' added with {priority} priority."
 
     def list_todos_tool():
         """List all tasks for the current user."""
@@ -156,11 +166,42 @@ def get_chat_tools(current_user: User, session: Session):
         session.commit()
         return f"Success: Task '{title}' deleted."
 
+    def update_todo_tool(todo_id: int, title: str = None, description: str = None, priority: str = None, status: str = None):
+        """Update a task's title, description, priority or status using its ID."""
+        todo = session.get(Todo, todo_id)
+        if not todo or todo.user_id != current_user.id:
+            return f"Error: Task {todo_id} not found."
+        
+        changes = []
+        if title:
+            todo.title = title
+            changes.append(f"title to '{title}'")
+        if description:
+            todo.description = description
+            changes.append(f"description to '{description}'")
+        if priority:
+            todo.priority = priority
+            changes.append(f"priority to '{priority}'")
+        if status:
+            if status not in ["Complete", "Incomplete"]:
+                 return "Error: Status must be 'Complete' or 'Incomplete'."
+            todo.status = status
+            changes.append(f"status to '{status}'")
+            
+        if not changes:
+            return "No changes requested."
+            
+        session.add(todo)
+        session.commit()
+        session.refresh(todo)
+        return f"Success: Updated Task {todo_id} " + ", ".join(changes) + "."
+
     return {
         "add_task": add_todo_tool,
         "list_tasks": list_todos_tool,
         "complete_task": complete_todo_tool,
-        "delete_task": delete_todo_tool
+        "delete_task": delete_todo_tool,
+        "update_task": update_todo_tool
     }
 
 @app.post("/chat")
